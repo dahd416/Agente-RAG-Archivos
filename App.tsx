@@ -122,8 +122,8 @@ const App: React.FC = () => {
 
     const handleUploadAndStartChat = async () => {
         if (!isApiKeySelected) {
-            setApiKeyError("Please select your Gemini API Key first.");
-            throw new Error("API Key is required.");
+            setApiKeyError("Por favor, selecciona tu clave API de Gemini primero.");
+            throw new Error("Se requiere clave API.");
         }
         if (files.length === 0) return;
         
@@ -132,35 +132,35 @@ const App: React.FC = () => {
         try {
             geminiService.initialize();
         } catch (err) {
-            handleError("Initialization failed. Please select a valid API Key.", err);
+            handleError("Fallo en la inicialización. Por favor selecciona una clave API válida.", err);
             throw err;
         }
         
         setStatus(AppStatus.Uploading);
         const totalSteps = files.length + 2;
-        setUploadProgress({ current: 0, total: totalSteps, message: "Creating document index..." });
+        setUploadProgress({ current: 0, total: totalSteps, message: "Creando índice de documentos..." });
 
         try {
             const storeName = `chat-session-${Date.now()}`;
             const ragStoreName = await geminiService.createRagStore(storeName);
             
-            setUploadProgress({ current: 1, total: totalSteps, message: "Generating embeddings..." });
+            setUploadProgress({ current: 1, total: totalSteps, message: "Generando embeddings..." });
 
             for (let i = 0; i < files.length; i++) {
                 setUploadProgress(prev => ({ 
                     ...(prev!),
                     current: i + 1,
-                    message: "Generating embeddings...",
+                    message: "Generando embeddings...",
                     fileName: `(${i + 1}/${files.length}) ${files[i].name}`
                 }));
                 await geminiService.uploadToRagStore(ragStoreName, files[i]);
             }
             
-            setUploadProgress({ current: files.length + 1, total: totalSteps, message: "Generating suggestions...", fileName: "" });
+            setUploadProgress({ current: files.length + 1, total: totalSteps, message: "Generando sugerencias...", fileName: "" });
             const questions = await geminiService.generateExampleQuestions(ragStoreName);
             setExampleQuestions(questions);
 
-            setUploadProgress({ current: totalSteps, total: totalSteps, message: "All set!", fileName: "" });
+            setUploadProgress({ current: totalSteps, total: totalSteps, message: "¡Todo listo!", fileName: "" });
             
             await new Promise(resolve => setTimeout(resolve, 500)); // Short delay to show "All set!"
 
@@ -168,9 +168,9 @@ const App: React.FC = () => {
             if (files.length === 1) {
                 docName = files[0].name;
             } else if (files.length === 2) {
-                docName = `${files[0].name} & ${files[1].name}`;
+                docName = `${files[0].name} y ${files[1].name}`;
             } else {
-                docName = `${files.length} documents`;
+                docName = `${files.length} documentos`;
             }
             setDocumentName(docName);
 
@@ -181,11 +181,11 @@ const App: React.FC = () => {
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
             if (errorMessage.includes('api key not valid') || errorMessage.includes('requested entity was not found')) {
-                setApiKeyError("The selected API key is invalid. Please select a different one and try again.");
+                setApiKeyError("La clave API seleccionada no es válida. Por favor selecciona una diferente e intenta de nuevo.");
                 setIsApiKeySelected(false);
                 setStatus(AppStatus.Welcome);
             } else {
-                handleError("Failed to start chat session", err);
+                handleError("Error al iniciar la sesión de chat", err);
             }
             throw err;
         } finally {
@@ -225,10 +225,10 @@ const App: React.FC = () => {
         } catch (err) {
             const errorMessage: ChatMessage = {
                 role: 'model',
-                parts: [{ text: "Sorry, I encountered an error. Please try again." }]
+                parts: [{ text: "Lo siento, encontré un error. Por favor intenta de nuevo." }]
             };
             setChatHistory(prev => [...prev, errorMessage]);
-            handleError("Failed to get response", err);
+            handleError("Error al obtener respuesta", err);
         } finally {
             setIsQueryLoading(false);
         }
@@ -239,27 +239,27 @@ const App: React.FC = () => {
             case AppStatus.Initializing:
                 return (
                     <div className="flex items-center justify-center h-screen">
-                        <Spinner /> <span className="ml-4 text-xl">Initializing...</span>
+                        <Spinner /> <span className="ml-4 text-xl">Iniciando...</span>
                     </div>
                 );
             case AppStatus.Welcome:
                  return <WelcomeScreen onUpload={handleUploadAndStartChat} apiKeyError={apiKeyError} files={files} setFiles={setFiles} isApiKeySelected={isApiKeySelected} onSelectKey={handleSelectKey} />;
             case AppStatus.Uploading:
                 let icon = null;
-                if (uploadProgress?.message === "Creating document index...") {
+                if (uploadProgress?.message === "Creando índice de documentos...") {
                     icon = <img src="https://services.google.com/fh/files/misc/applet-upload.png" alt="Uploading files icon" className="h-80 w-80 rounded-lg object-cover" />;
-                } else if (uploadProgress?.message === "Generating embeddings...") {
+                } else if (uploadProgress?.message === "Generando embeddings...") {
                     icon = <img src="https://services.google.com/fh/files/misc/applet-creating-embeddings_2.png" alt="Creating embeddings icon" className="h-240 w-240 rounded-lg object-cover" />;
-                } else if (uploadProgress?.message === "Generating suggestions...") {
+                } else if (uploadProgress?.message === "Generando sugerencias...") {
                     icon = <img src="https://services.google.com/fh/files/misc/applet-suggestions_2.png" alt="Generating suggestions icon" className="h-240 w-240 rounded-lg object-cover" />;
-                } else if (uploadProgress?.message === "All set!") {
+                } else if (uploadProgress?.message === "¡Todo listo!") {
                     icon = <img src="https://services.google.com/fh/files/misc/applet-completion_2.png" alt="Completion icon" className="h-240 w-240 rounded-lg object-cover" />;
                 }
 
                 return <ProgressBar 
                     progress={uploadProgress?.current || 0} 
                     total={uploadProgress?.total || 1} 
-                    message={uploadProgress?.message || "Preparing your chat..."} 
+                    message={uploadProgress?.message || "Preparando tu chat..."} 
                     fileName={uploadProgress?.fileName}
                     icon={icon}
                 />;
@@ -275,10 +275,10 @@ const App: React.FC = () => {
             case AppStatus.Error:
                  return (
                     <div className="flex flex-col items-center justify-center h-screen bg-red-900/20 text-red-300">
-                        <h1 className="text-3xl font-bold mb-4">Application Error</h1>
+                        <h1 className="text-3xl font-bold mb-4">Error de Aplicación</h1>
                         <p className="max-w-md text-center mb-4">{error}</p>
-                        <button onClick={clearError} className="px-4 py-2 rounded-md bg-gem-mist hover:bg-gem-mist/70 transition-colors" title="Return to the welcome screen">
-                           Try Again
+                        <button onClick={clearError} className="px-4 py-2 rounded-md bg-gem-mist hover:bg-gem-mist/70 transition-colors" title="Volver a la pantalla de bienvenida">
+                           Intentar de Nuevo
                         </button>
                     </div>
                 );

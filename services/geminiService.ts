@@ -42,7 +42,7 @@ export async function fileSearch(ragStoreName: string, query: string): Promise<Q
     if (!ai) throw new Error("Gemini AI not initialized");
     const response: GenerateContentResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: query + "DO NOT ASK THE USER TO READ THE MANUAL, pinpoint the relevant sections in the response itself.",
+        contents: query + " Responde siempre en Español. NO PIDAS AL USUARIO QUE LEA EL MANUAL, señala las secciones relevantes en la respuesta misma.",
         config: {
             tools: [
                     {
@@ -66,7 +66,7 @@ export async function generateExampleQuestions(ragStoreName: string): Promise<st
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: "You are provided some user manuals for some products. Figure out for what product each manual is for, based on the cover page contents. DO NOT GUESS OR HALLUCINATE THE PRODUCT. Then, for each product, generate 4 short and practical example questions a user might ask about it in English. Return the questions as a JSON array of objects. Each object should have a 'product' key with the product name as a string, and a 'questions' key with an array of 4 question strings. For example: ```json[{\"product\": \"Product A\", \"questions\": [\"q1\", \"q2\"]}, {\"product\": \"Product B\", \"questions\": [\"q3\", \"q4\"]}]```",
+            contents: "You are provided some user manuals for some products. Figure out for what product each manual is for, based on the cover page contents. DO NOT GUESS OR HALLUCINATE THE PRODUCT. Then, for each product, generate 4 short and practical example questions a user might ask about it in Spanish. Return the questions as a JSON array of objects. Each object should have a 'product' key with the product name as a string, and a 'questions' key with an array of 4 question strings. For example: ```json[{\"product\": \"Product A\", \"questions\": [\"q1\", \"q2\"]}, {\"product\": \"Product B\", \"questions\": [\"q3\", \"q4\"]}]```",
             config: {
                 tools: [
                     {
