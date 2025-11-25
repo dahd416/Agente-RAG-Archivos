@@ -29,35 +29,35 @@ const QueryInterface: React.FC<QueryInterfaceProps> = ({ selectedStore, isLoadin
     if (!selectedStore) {
         return (
             <div className="flex flex-col h-full items-center justify-center text-center text-gem-offwhite/60">
-                 <p className="text-lg">Select a RAG Store</p>
-                <p>to start asking questions.</p>
+                 <p className="text-lg">Selecciona una Base de Conocimiento</p>
+                <p>para comenzar a hacer preguntas.</p>
             </div>
         );
     }
 
     return (
         <div className="flex flex-col h-full">
-            <h2 className="text-xl font-bold mb-4">Query: {selectedStore.displayName}</h2>
+            <h2 className="text-xl font-bold mb-4">Consulta: {selectedStore.displayName}</h2>
             <div className="flex-grow overflow-y-auto mb-4 pr-2 space-y-6">
                  {isLoading && (
                     <div className="flex items-center justify-center p-4">
-                        <Spinner /> <span className="ml-3">Searching...</span>
+                        <Spinner /> <span className="ml-3">Buscando...</span>
                     </div>
                 )}
                 {result && (
                     <div>
                         <div className="bg-gem-mist p-4 rounded-lg">
-                            <h3 className="font-semibold text-gem-teal mb-2">Answer</h3>
+                            <h3 className="font-semibold text-gem-teal mb-2">Respuesta</h3>
                             <p className="whitespace-pre-wrap">{result.text}</p>
                         </div>
                         {result.groundingChunks.length > 0 && (
                              <div className="mt-4">
-                                <h3 className="font-semibold text-gem-teal mb-2">Sources</h3>
+                                <h3 className="font-semibold text-gem-teal mb-2">Fuentes / Referencias</h3>
                                 <div className="space-y-2">
                                 {result.groundingChunks.map((chunk, index) => (
                                     chunk.retrievedContext?.text && (
                                         <details key={index} className="bg-gem-mist/50 p-3 rounded-lg text-sm">
-                                            <summary className="cursor-pointer font-medium">Source Chunk {index + 1}</summary>
+                                            <summary className="cursor-pointer font-medium">Fragmento Fuente {index + 1}</summary>
                                             <p className="mt-2 text-gem-offwhite/80">{chunk.retrievedContext.text}</p>
                                         </details>
                                     )
@@ -69,7 +69,7 @@ const QueryInterface: React.FC<QueryInterfaceProps> = ({ selectedStore, isLoadin
                 )}
                  {!result && !isLoading && (
                     <div className="flex h-full items-center justify-center text-gem-offwhite/60">
-                        <p>Ask a question about the documents.</p>
+                        <p>Haz una pregunta sobre los documentos.</p>
                     </div>
                 )}
             </div>
@@ -78,11 +78,11 @@ const QueryInterface: React.FC<QueryInterfaceProps> = ({ selectedStore, isLoadin
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Ask a question..."
+                    placeholder="Haz una pregunta..."
                     className="flex-grow bg-gem-mist border border-gem-mist/50 rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gem-blue"
                     disabled={isLoading}
                 />
-                <button type="submit" disabled={isLoading || !query.trim()} className="p-3 bg-gem-blue rounded-full text-white disabled:bg-gem-mist transition-colors" title="Send query">
+                <button type="submit" disabled={isLoading || !query.trim()} className="p-3 bg-gem-blue rounded-full text-white disabled:bg-gem-mist transition-colors" title="Enviar consulta">
                     <SendIcon />
                 </button>
             </form>

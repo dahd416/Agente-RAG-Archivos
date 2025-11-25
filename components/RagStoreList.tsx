@@ -44,14 +44,14 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
     return (
         <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">RAG Stores</h2>
+                <h2 className="text-xl font-bold">Bases de Conocimiento</h2>
                 <div className="flex items-center space-x-2">
                      <button
                         onClick={onRefresh}
                         className="p-2 bg-gem-mist hover:bg-gem-mist/70 rounded-full text-white transition-colors disabled:bg-gem-mist"
                         disabled={isLoading}
-                        aria-label="Refresh RAG stores"
-                        title="Refresh the list of RAG stores"
+                        aria-label="Actualizar bases"
+                        title="Actualizar lista de bases de conocimiento"
                     >
                         <RefreshIcon />
                     </button>
@@ -59,8 +59,8 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
                         onClick={handleCreateClick}
                         className="p-2 bg-gem-blue hover:bg-blue-500 rounded-full text-white transition-colors disabled:bg-gem-mist"
                         disabled={isLoading}
-                        aria-label="Create new RAG store"
-                        title="Create a new RAG store"
+                        aria-label="Crear nueva base"
+                        title="Crear nueva base de conocimiento"
                     >
                         <PlusIcon />
                     </button>
@@ -70,15 +70,15 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="create-store-title">
                     <div className="bg-gem-slate p-6 rounded-lg shadow-xl w-full max-w-md">
-                        <h3 id="create-store-title" className="text-xl font-bold mb-4">Create New RAG Store</h3>
+                        <h3 id="create-store-title" className="text-xl font-bold mb-4">Crear Nueva Base</h3>
                         <form onSubmit={handleConfirmCreate}>
-                            <label htmlFor="store-name" className="sr-only">Store Name</label>
+                            <label htmlFor="store-name" className="sr-only">Nombre de la Base</label>
                             <input
                                 id="store-name"
                                 type="text"
                                 value={newStoreName}
                                 onChange={(e) => setNewStoreName(e.target.value)}
-                                placeholder="Enter store name"
+                                placeholder="Ingresa nombre..."
                                 className="w-full bg-gem-mist border border-gem-mist/50 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-gem-blue mb-4"
                                 autoFocus
                             />
@@ -87,17 +87,17 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
                                     type="button"
                                     onClick={handleModalClose}
                                     className="px-4 py-2 rounded-md bg-gem-mist hover:bg-gem-mist/70 transition-colors"
-                                    title="Cancel store creation"
+                                    title="Cancelar creación"
                                 >
-                                    Cancel
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={!newStoreName.trim()}
                                     className="px-4 py-2 rounded-md bg-gem-blue hover:bg-blue-500 text-white transition-colors disabled:bg-gem-mist/50 disabled:cursor-not-allowed"
-                                    title="Create new RAG store"
+                                    title="Crear nueva base"
                                 >
-                                    Create
+                                    Crear
                                 </button>
                             </div>
                         </form>
@@ -111,7 +111,7 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
                 </div>
             ) : stores.length === 0 ? (
                 <div className="flex-grow flex items-center justify-center text-center text-gem-offwhite/60">
-                    <p>No RAG stores found. <br /> Click the '+' to create one.</p>
+                    <p>No se encontraron bases. <br /> Haz clic en '+' para crear una.</p>
                 </div>
             ) : (
                 <ul className="space-y-2 overflow-y-auto">
@@ -124,15 +124,15 @@ const RagStoreList: React.FC<RagStoreListProps> = ({ stores, selectedStore, isLo
                                         ? 'bg-gem-blue text-white'
                                         : 'bg-gem-mist hover:bg-gem-mist/70'
                                 }`}
-                                title={`Select ${store.displayName} to view its documents`}
+                                title={`Seleccionar ${store.displayName} para ver sus documentos`}
                             >
                                 {store.displayName}
                             </button>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); onDelete(store.name); }}
                                 className="ml-2 p-2 text-red-400 hover:text-red-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                aria-label={`Delete ${store.displayName}`}
-                                title={`Delete ${store.displayName}`}
+                                aria-label={`Eliminar ${store.displayName}`}
+                                title={`Eliminar ${store.displayName}`}
                             >
                                <TrashIcon />
                             </button>

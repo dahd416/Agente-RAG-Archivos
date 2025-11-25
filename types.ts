@@ -44,3 +44,12 @@ export interface ChatMessage {
     parts: { text: string }[];
     groundingChunks?: GroundingChunk[];
 }
+
+export interface BrandingConfig {
+    appTitle: string;
+    appSubtitle: string;
+    browserTitle: string;
+    logoUrl: string | null;
+    primaryColor: string;
+    backgroundColor: string;
+}

@@ -4,8 +4,8 @@
 */
 import React from 'react';
 
-const CarIcon: React.FC = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" viewBox="0 0 100 70">
+const CarIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className = "h-12 w-12", ...props }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 100 70" {...props}>
         <defs>
             <linearGradient id="car-shadow-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
                 <stop offset="0%" stopColor="#9FBBD7" stopOpacity="0.2" />

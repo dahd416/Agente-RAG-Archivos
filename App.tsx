@@ -4,12 +4,13 @@
 */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AppStatus, ChatMessage } from './types';
+import { AppStatus, ChatMessage, BrandingConfig } from './types';
 import * as geminiService from './services/geminiService';
 import Spinner from './components/Spinner';
 import WelcomeScreen from './components/WelcomeScreen';
 import ProgressBar from './components/ProgressBar';
 import ChatInterface from './components/ChatInterface';
+import ApiKeyModal from './components/ApiKeyModal';
 
 // DO: Define the AIStudio interface to resolve a type conflict where `window.aistudio` was being redeclared with an anonymous type.
 // FIX: Moved the AIStudio interface definition inside the `declare global` block to resolve a TypeScript type conflict.
@@ -26,6 +27,8 @@ declare global {
 const App: React.FC = () => {
     const [status, setStatus] = useState<AppStatus>(AppStatus.Initializing);
     const [isApiKeySelected, setIsApiKeySelected] = useState(false);
+    const [manualApiKey, setManualApiKey] = useState<string | null>(null);
+    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
     const [apiKeyError, setApiKeyError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState<{ current: number, total: number, message?: string, fileName?: string } | null>(null);
@@ -35,13 +38,41 @@ const App: React.FC = () => {
     const [exampleQuestions, setExampleQuestions] = useState<string[]>([]);
     const [documentName, setDocumentName] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
+    
+    // Branding State
+    const [branding, setBranding] = useState<BrandingConfig>({
+        appTitle: 'Chatea con tus Documentos',
+        appSubtitle: 'Cotizador AEI',
+        browserTitle: 'Gemini RAG - Gestor',
+        logoUrl: null,
+        primaryColor: '#2563eb', // gem-blue default
+        backgroundColor: '#f8fafc', // gem-onyx default
+    });
+
     const ragStoreNameRef = useRef(activeRagStoreName);
 
     useEffect(() => {
         ragStoreNameRef.current = activeRagStoreName;
     }, [activeRagStoreName]);
+
+    // Update Document Title based on branding
+    useEffect(() => {
+        document.title = branding.browserTitle;
+    }, [branding.browserTitle]);
+
+    // Apply CSS Variables for dynamic colors
+    useEffect(() => {
+        const root = document.documentElement;
+        root.style.setProperty('--gem-blue', branding.primaryColor);
+        root.style.setProperty('--gem-onyx', branding.backgroundColor);
+    }, [branding.primaryColor, branding.backgroundColor]);
     
     const checkApiKey = useCallback(async () => {
+        if (manualApiKey) {
+            setIsApiKeySelected(true);
+            return;
+        }
+
         if (window.aistudio?.hasSelectedApiKey) {
             try {
                 const hasKey = await window.aistudio.hasSelectedApiKey();
@@ -51,7 +82,7 @@ const App: React.FC = () => {
                 setIsApiKeySelected(false); // Assume no key on error
             }
         }
-    }, []);
+    }, [manualApiKey]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -116,8 +147,15 @@ const App: React.FC = () => {
             }
         } else {
             console.log('window.aistudio.openSelectKey() not available.');
-            alert('API key selection is not available in this environment.');
+            // Fallback to manual input if AI Studio is not available
+            setShowApiKeyModal(true);
         }
+    };
+
+    const handleSaveManualKey = (key: string) => {
+        setManualApiKey(key);
+        setApiKeyError(null);
+        setIsApiKeySelected(true);
     };
 
     const handleUploadAndStartChat = async () => {
@@ -130,7 +168,7 @@ const App: React.FC = () => {
         setApiKeyError(null);
 
         try {
-            geminiService.initialize();
+            geminiService.initialize(manualApiKey || undefined);
         } catch (err) {
             handleError("Fallo en la inicialización. Por favor selecciona una clave API válida.", err);
             throw err;
@@ -183,6 +221,7 @@ const App: React.FC = () => {
             if (errorMessage.includes('api key not valid') || errorMessage.includes('requested entity was not found')) {
                 setApiKeyError("La clave API seleccionada no es válida. Por favor selecciona una diferente e intenta de nuevo.");
                 setIsApiKeySelected(false);
+                setManualApiKey(null); // Reset manual key if invalid
                 setStatus(AppStatus.Welcome);
             } else {
                 handleError("Error al iniciar la sesión de chat", err);
@@ -243,17 +282,36 @@ const App: React.FC = () => {
                     </div>
                 );
             case AppStatus.Welcome:
-                 return <WelcomeScreen onUpload={handleUploadAndStartChat} apiKeyError={apiKeyError} files={files} setFiles={setFiles} isApiKeySelected={isApiKeySelected} onSelectKey={handleSelectKey} />;
+                 return (
+                    <>
+                        <WelcomeScreen 
+                            onUpload={handleUploadAndStartChat} 
+                            apiKeyError={apiKeyError} 
+                            files={files} 
+                            setFiles={setFiles} 
+                            isApiKeySelected={isApiKeySelected} 
+                            onSelectKey={handleSelectKey}
+                            onEnterManualKey={() => setShowApiKeyModal(true)}
+                            branding={branding}
+                            setBranding={setBranding}
+                        />
+                        <ApiKeyModal 
+                            isOpen={showApiKeyModal} 
+                            onClose={() => setShowApiKeyModal(false)} 
+                            onSave={handleSaveManualKey} 
+                        />
+                    </>
+                 );
             case AppStatus.Uploading:
                 let icon = null;
                 if (uploadProgress?.message === "Creando índice de documentos...") {
-                    icon = <img src="https://services.google.com/fh/files/misc/applet-upload.png" alt="Uploading files icon" className="h-80 w-80 rounded-lg object-cover" />;
+                    icon = <img src="https://services.google.com/fh/files/misc/applet-upload.png" alt="Icono de subida" className="h-80 w-80 rounded-lg object-cover" />;
                 } else if (uploadProgress?.message === "Generando embeddings...") {
-                    icon = <img src="https://services.google.com/fh/files/misc/applet-creating-embeddings_2.png" alt="Creating embeddings icon" className="h-240 w-240 rounded-lg object-cover" />;
+                    icon = <img src="https://services.google.com/fh/files/misc/applet-creating-embeddings_2.png" alt="Icono de embeddings" className="h-240 w-240 rounded-lg object-cover" />;
                 } else if (uploadProgress?.message === "Generando sugerencias...") {
-                    icon = <img src="https://services.google.com/fh/files/misc/applet-suggestions_2.png" alt="Generating suggestions icon" className="h-240 w-240 rounded-lg object-cover" />;
+                    icon = <img src="https://services.google.com/fh/files/misc/applet-suggestions_2.png" alt="Icono de sugerencias" className="h-240 w-240 rounded-lg object-cover" />;
                 } else if (uploadProgress?.message === "¡Todo listo!") {
-                    icon = <img src="https://services.google.com/fh/files/misc/applet-completion_2.png" alt="Completion icon" className="h-240 w-240 rounded-lg object-cover" />;
+                    icon = <img src="https://services.google.com/fh/files/misc/applet-completion_2.png" alt="Icono de completado" className="h-240 w-240 rounded-lg object-cover" />;
                 }
 
                 return <ProgressBar 
@@ -283,7 +341,17 @@ const App: React.FC = () => {
                     </div>
                 );
             default:
-                 return <WelcomeScreen onUpload={handleUploadAndStartChat} apiKeyError={apiKeyError} files={files} setFiles={setFiles} isApiKeySelected={isApiKeySelected} onSelectKey={handleSelectKey} />;
+                 return <WelcomeScreen 
+                            onUpload={handleUploadAndStartChat} 
+                            apiKeyError={apiKeyError} 
+                            files={files} 
+                            setFiles={setFiles} 
+                            isApiKeySelected={isApiKeySelected} 
+                            onSelectKey={handleSelectKey}
+                            onEnterManualKey={() => setShowApiKeyModal(true)}
+                            branding={branding}
+                            setBranding={setBranding}
+                        />;
         }
     }
 

@@ -1,21 +1,32 @@
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.29.0"
+  }
+}
+</script>
+
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agente de Base de Datos | DEMO</title>
+    <title>Gemini RAG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              'gem-onyx': '#f8fafc',
+              'gem-onyx': 'var(--gem-onyx)', // Dynamic background
               'gem-slate': '#ffffff',
               'gem-mist': '#e2e8f0',
               'gem-offwhite': '#1e293b',
               'gem-teal': '#0d9488',
-              'gem-blue': '#2563eb',
+              'gem-blue': 'var(--gem-blue)', // Dynamic primary
             },
             keyframes: {
               'progress-stripes': {
@@ -31,8 +42,8 @@
       }
     </script>
   
-    <link rel="stylesheet" href="/index.css">
-  </head>
+  <link rel="stylesheet" href="/index.css">
+</head>
   <body class="bg-gem-onyx">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

@@ -4,8 +4,8 @@
 */
 import React from 'react';
 
-const WashingMachineIcon: React.FC = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" viewBox="0 0 100 100">
+const WashingMachineIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className = "h-12 w-12", ...props }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 100 100" {...props}>
         <defs>
             <linearGradient id="washer-body-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#a7c4e4" />

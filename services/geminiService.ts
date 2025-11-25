@@ -7,8 +7,12 @@ import { RagStore, Document, QueryResult, CustomMetadata } from '../types';
 
 let ai: GoogleGenAI;
 
-export function initialize() {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+export function initialize(apiKey?: string) {
+    const key = apiKey || process.env.API_KEY;
+    if (!key) {
+        throw new Error("Clave API no encontrada. Por favor selecciónala o ingrésala.");
+    }
+    ai = new GoogleGenAI({ apiKey: key });
 }
 
 async function delay(ms: number): Promise<void> {
@@ -16,16 +20,16 @@ async function delay(ms: number): Promise<void> {
 }
 
 export async function createRagStore(displayName: string): Promise<string> {
-    if (!ai) throw new Error("Gemini AI not initialized");
+    if (!ai) throw new Error("Gemini AI no inicializado");
     const ragStore = await ai.fileSearchStores.create({ config: { displayName } });
     if (!ragStore.name) {
-        throw new Error("Failed to create RAG store: name is missing.");
+        throw new Error("Fallo al crear la base de conocimiento: falta el nombre.");
     }
     return ragStore.name;
 }
 
 export async function uploadToRagStore(ragStoreName: string, file: File): Promise<void> {
-    if (!ai) throw new Error("Gemini AI not initialized");
+    if (!ai) throw new Error("Gemini AI no inicializado");
     
     let op = await ai.fileSearchStores.uploadToFileSearchStore({
         fileSearchStoreName: ragStoreName,
@@ -39,7 +43,7 @@ export async function uploadToRagStore(ragStoreName: string, file: File): Promis
 }
 
 export async function fileSearch(ragStoreName: string, query: string): Promise<QueryResult> {
-    if (!ai) throw new Error("Gemini AI not initialized");
+    if (!ai) throw new Error("Gemini AI no inicializado");
     const response: GenerateContentResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: query + " Responde siempre en Español. NO PIDAS AL USUARIO QUE LEA EL MANUAL, señala las secciones relevantes en la respuesta misma.",
@@ -62,7 +66,7 @@ export async function fileSearch(ragStoreName: string, query: string): Promise<Q
 }
 
 export async function generateExampleQuestions(ragStoreName: string): Promise<string[]> {
-    if (!ai) throw new Error("Gemini AI not initialized");
+    if (!ai) throw new Error("Gemini AI no inicializado");
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -120,7 +124,7 @@ export async function generateExampleQuestions(ragStoreName: string): Promise<st
 
 
 export async function deleteRagStore(ragStoreName: string): Promise<void> {
-    if (!ai) throw new Error("Gemini AI not initialized");
+    if (!ai) throw new Error("Gemini AI no inicializado");
     // DO: Remove `(as any)` type assertion.
     await ai.fileSearchStores.delete({
         name: ragStoreName,
